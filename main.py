@@ -1,6 +1,6 @@
 import sys
 from tokenizer import tokenize
-from parser import StatementParser
+from expressionAndStatementParser import StatementParser
 from evaluator import Evaluator
 
 

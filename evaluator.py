@@ -1,4 +1,5 @@
 from abst import *
+from expressionAndStatementParser import DivideByZeroError, ErrorStatement
 
 
 class Evaluator:
@@ -7,7 +8,9 @@ class Evaluator:
 		self.functions = {}
 
 	def evaluate(self, node):
-		if isinstance(node, Number):
+		if isinstance(node, ErrorStatement):
+			return node.error
+		elif isinstance(node, Number):
 			return node.value
 
 		elif isinstance(node, Variable):
@@ -35,9 +38,7 @@ class Evaluator:
 			return value
 
 		elif isinstance(node, BinaryOperation):
-
 			left = self.evaluate(node.left)
-
 			right = self.evaluate(node.right)
 
 			if node.operator == '+':
@@ -48,9 +49,9 @@ class Evaluator:
 				return left * right
 			elif node.operator == '/':
 				if right == 0:
-					raise ValueError("divide by zero")
+					return "divide by zero"
 				return left / right
-			elif node.operator == '^':  # Add this line
+			elif node.operator == '^':
 				return left ** right
 		# Add more operators as needed
 
@@ -115,11 +116,19 @@ class Evaluator:
 
 			elif isinstance(node, Return):
 				return self.evaluate(node.expression)
-
+			# worked 1
+			# elif isinstance(node, PrintStatement):
+			# 	results = [self.evaluate(expr) for expr in node.expressions]
+			# 	print(" ".join(str(result) for result in results))
+			# 	return None
 			elif isinstance(node, PrintStatement):
 				results = [self.evaluate(expr) for expr in node.expressions]
-				print(" ".join(str(result) for result in results))
-				return None
-
+				return " ".join(str(result) for result in results)
 		else:
 			raise ValueError(f"Unknown node type: {node}")
+
+		def evaluate_statement(self, statement):
+			try:
+				return self.evaluate(statement), None
+			except DivideByZeroError as e:
+				return None, str(e)

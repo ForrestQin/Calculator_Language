@@ -21,15 +21,18 @@ class ExpressionParser:
 
 		return left
 
+
 	def parse_multiplicative(self):
 		left = self.parse_exponentiation()
 
-		while self.tokens[self.index].type == "OPERATOR" and self.tokens[self.index].value in ("*", "/", "%"):
+		while self.index < len(self.tokens) and self.tokens[self.index].type == "OPERATOR" and self.tokens[
+			self.index].value in ("*", "/", "%"):
 			operator = self.tokens[self.index].value
 			self.index += 1
+			if self.index == len(self.tokens) or self.tokens[self.index].type == "NEWLINE":
+				raise ValueError("parse error")
 			right = self.parse_exponentiation()
 			left = BinaryOperation(left, operator, right)
-
 		return left
 
 	def parse_unary(self):
@@ -74,6 +77,8 @@ class ExpressionParser:
 		elif self.index < len(self.tokens) and self.tokens[self.index].type == "COMMA":
 			self.index += 1
 			return self.parse_primary()
+		elif token.type == "OPERATOR" and token.value != "(":
+			raise ValueError("parse error")
 		else:
 			raise ValueError("Invalid expression")
 
@@ -109,24 +114,31 @@ class StatementParser:
 			self.index += 1
 			return None
 
-		if self.tokens[self.index].type == "IDENTIFIER":
-			var_name = self.tokens[self.index].value
-			self.index += 1
+		if self.tokens[self.index].type == "NUMBER" or self.tokens[self.index].type == "IDENTIFIER":
+			expr_parser = ExpressionParser(self.tokens[self.index:])
+			expr = expr_parser.parse()
+			self.index += expr_parser.index
 
 			if self.tokens[self.index].type == "OPERATOR":
 				operator = self.tokens[self.index].value
 				if operator == "=":
-					self.index += 1
-					expr_parser = ExpressionParser(self.tokens[self.index:])
-					expr = expr_parser.parse()
-					self.index += expr_parser.index
-					return Assignment(var_name, expr)
+					if self.tokens[self.index - expr_parser.index].type == "IDENTIFIER":
+						var_name = self.tokens[self.index - expr_parser.index].value
+						self.index += 1
+						expr_parser = ExpressionParser(self.tokens[self.index:])
+						expr = expr_parser.parse()
+						self.index += expr_parser.index
+						return Assignment(var_name, expr)
+					else:
+						raise ParseError("Invalid statement")
 				elif operator == "++":
 					self.index += 1
-					return PostIncrement(Variable(var_name))
+					return PostIncrement(expr)
 				elif operator == "--":
 					self.index += 1
-					return PostDecrement(Variable(var_name))
+					return PostDecrement(expr)
+				else:
+					raise ParseError("Invalid statement")
 
 		elif self.tokens[self.index].type == "OPERATOR" and self.tokens[self.index].value in ("++", "--"):
 			operator = self.tokens[self.index].value
@@ -153,7 +165,26 @@ class StatementParser:
 			self.index += 1
 			return PrintStatement(expressions)
 
-		raise ValueError("Invalid statement")
+		raise ParseError("Invalid statement")
+	def has_next(self):
+		return self.index < len(self.tokens)
+
+
+
+class ParseError(Exception):
+	pass
+
+
+class DivideByZeroError(Exception):
+	pass
+
+
+class ErrorStatement:
+	def __init__(self, error):
+		self.error = error
+
+	def __repr__(self):
+		return f"ErrorStatement({repr(self.error)})"
 
 
 def parse_code(code):

@@ -1,5 +1,5 @@
 # CS515 Project 2: Calculator Language
-Yetong Chen ychen12@stevens.edu
+Yetong Chen ychen12@stevens.edu,
 Honglin Qin hqin4@stevens.edu
 
 A standard calculator used on the command-line.

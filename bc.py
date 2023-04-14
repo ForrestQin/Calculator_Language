@@ -2,8 +2,8 @@ import sys
 
 from abst import PrintStatement
 from tokenizer import tokenize
-from expressionAndStatementParser import StatementParser, DivideByZeroError, ParseError
-from evaluator import Evaluator
+from parse import StatementParser, ErrorStatement, ParseError
+from evaluate import Evaluator
 
 
 def main():
@@ -12,8 +12,9 @@ def main():
 	all_tokens = []
 	print_statements = []
 
-	try:
-		while True:
+	
+	while True:
+		try:
 			line = input() + "\n"
 			tokens = tokenize(line)
 			all_tokens.extend(tokens)
@@ -21,21 +22,20 @@ def main():
 			parser = StatementParser(tokens)
 			try:
 				statements = parser.parse()
-			except ValueError as e:
-				print(e)
-				continue
-			except Exception as e:
-				print(f"Unexpected error: {e}")
-				continue
 
-			for statement in statements:
-				result = evaluator.evaluate(statement)
-				if isinstance(statement, PrintStatement):
-					print_statements.append(result)
+				for statement in statements:
+					result = evaluator.evaluate(statement)
+					if isinstance(statement, PrintStatement):
+						print_statements.append(result)
+						print(result)
+					elif isinstance(result, ErrorStatement):
+						print('divide by zero')
+			except ParseError:
+				print('parse error')
+				continue
+		except EOFError:
+			break
 
-	except EOFError:
-		for statement in print_statements:
-			print(statement)
 
 if __name__ == "__main__":
 	main()

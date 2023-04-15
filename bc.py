@@ -17,11 +17,9 @@ def main():
 			line = input() + "\n"
 			tokens = tokenize(line)
 			all_tokens.extend(tokens)
-
 			parser = StatementParser(tokens)
 			try:
 				statements = parser.parse()
-
 				for statement in statements:
 					result = evaluator.evaluate(statement)
 					if isinstance(statement, PrintStatement):

@@ -1,5 +1,6 @@
 from abst import *
-from expressionAndStatementParser import DivideByZeroError, ErrorStatement
+from parse import DivideByZeroError, ParseError, ErrorStatement
+import math
 
 
 class Evaluator:
@@ -37,7 +38,25 @@ class Evaluator:
 			self.variables[node.variable.name] = value - 1
 			return value
 
-		elif isinstance(node, BinaryOperation):
+		elif isinstance(node, UnaryOperation):
+			operand = self.evaluate(node.operand)
+
+			if node.operator == '-':
+				return -operand
+			elif isinstance(operand, ErrorStatement):
+				return ErrorStatement('divide by zero')
+		# Add more unary operators as needed
+
+		elif isinstance(node, RightOperation):
+			left = self.evaluate(node.left)
+			right = self.evaluate(node.right)
+
+			if node.operator == '^':
+				return math.pow(left, right)
+			elif isinstance(left, ErrorStatement) or isinstance(right, ErrorStatement):
+				return ErrorStatement('divide by zero')
+
+		elif isinstance(node, LeftOperation):
 			left = self.evaluate(node.left)
 			right = self.evaluate(node.right)
 
@@ -49,26 +68,21 @@ class Evaluator:
 				return left * right
 			elif node.operator == '/':
 				if right == 0:
-					return "divide by zero"
+					return ErrorStatement('divide by zero')
 				return left / right
-			elif node.operator == '^':
-				return left ** right
+			elif node.operator == '%':
+				return left % right
+			elif isinstance(left, ErrorStatement) or isinstance(right, ErrorStatement):
+				return ErrorStatement('divide by zero')
 		# Add more operators as needed
-
-		elif isinstance(node, UnaryOperation):
-			operand = self.evaluate(node.operand)
-
-			if node.operator == '-':
-				return -operand
-		# Add more unary operators as needed
 
 		elif isinstance(node, FunctionCall):
 			function = self.functions.get(node.name)
 			if function is None:
-				raise ValueError(f"Undefined function: {node.name}")
+				raise ParseError()
 
 			if len(node.arguments) != len(function.parameters):
-				raise ValueError(f"Argument count mismatch for function {node.name}")
+				raise ParseError()
 			previous_variables = self.variables.copy()
 			for param, arg in zip(function.parameters, node.arguments):
 				self.variables[param.name] = self.evaluate(arg)
@@ -92,6 +106,8 @@ class Evaluator:
 		elif isinstance(node, Statement):
 			if isinstance(node, Assignment):
 				value = self.evaluate(node.expression)
+				if isinstance(value, ErrorStatement):
+					return ErrorStatement('divide by zero')
 				self.variables[node.variable] = value
 				return value
 
@@ -122,10 +138,15 @@ class Evaluator:
 			# 	print(" ".join(str(result) for result in results))
 			# 	return None
 			elif isinstance(node, PrintStatement):
-				results = [self.evaluate(expr) for expr in node.expressions]
+				results = []
+				for expr in node.expressions:
+					expr = self.evaluate(expr)
+					if isinstance(expr, ErrorStatement):
+						expr = 'divide by zero'
+					results.append(expr)
 				return " ".join(str(result) for result in results)
 		else:
-			raise ValueError(f"Unknown node type: {node}")
+			raise ParseError()
 
 		def evaluate_statement(self, statement):
 			try:

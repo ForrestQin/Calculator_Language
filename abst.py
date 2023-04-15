@@ -32,6 +32,32 @@ class Variable(Expression):
 		return f"{self.__class__.__name__}({self.name})"
 
 
+class LeftOperation(Expression):
+	def __init__(self, left, operator, right):
+		self.left = left
+		self.operator = operator
+		self.right = right
+
+	def __str__(self):
+		return f"{self.__class__.__name__}({self.operator})"
+
+	def children(self):
+		return [self.left, self.right]
+
+
+class RightOperation(Expression):
+	def __init__(self, left, operator, right):
+		self.left = left
+		self.operator = operator
+		self.right = right
+
+	def __str__(self):
+		return f"{self.__class__.__name__}({self.operator})"
+
+	def children(self):
+		return [self.left, self.right]
+
+
 class BinaryOperation(Expression):
 	def __init__(self, left, operator, right):
 		self.left = left

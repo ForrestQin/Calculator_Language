@@ -6,7 +6,7 @@ Token = namedtuple("Token", ["type", "value"])
 TOKEN_TYPES = [
     ("NUMBER", r"\d+(\.\d*)?"),
     ("KEYWORD", r"\bprint\b"),
-    ("OPERATOR", r"\+\+|--|\+=|\-=|\*=|/=|%=|\^=|==|<=|>=|\!=|<|>|[\+\-*/%^=()]"),
+    ("OPERATOR", r"\+\+|--|\+=|\-=|\*=|/=|%=|\^=|==|<=|>=|\!=|<|>|[\+\-*/%^=()]|&&|\|\||!"),
     ("NEWLINE", r"\n"),
     ("COMMA", r","),
     ("IDENTIFIER", r"[a-zA-Z]\w*"),

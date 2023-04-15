@@ -1,6 +1,26 @@
 from abst import *
 from tokenizer import *
 
+PRECEDENCE = {
+    # Add the precedence levels for the relational operators
+    "==": 4, "!=": 4, "<": 4, "<=": 4, ">": 4, ">=": 4,
+    # Add the precedence levels for the boolean operators
+    "&&": 3,
+    "||": 2,
+    "+": 1, "-": 1,
+    "*": 0, "/": 0, "%": 0, "^": 0,
+}
+
+ASSOCIATIVITY = {
+    # Add the associativity values for the relational operators
+    "==": "left", "!=": "left", "<": "left", "<=": "left", ">": "left", ">=": "left",
+    # Add the associativity values for the boolean operators
+    "&&": "left",
+    "||": "left",
+    "+": "left", "-": "left",
+    "*": "left", "/": "left", "%": "left", "^": "right",
+}
+
 
 class ExpressionParser:
 	def __init__(self, tokens):
@@ -13,15 +33,28 @@ class ExpressionParser:
 	def parse_expression(self):
 		left = self.parse_additive()
 
+		if self.index < len(self.tokens) and self.tokens[self.index].type == "OPERATOR" and self.tokens[
+			self.index].value in ("&&", "||"):
+			left = self.parse_boolean_expression(left)
+		else:
+			while self.index < len(self.tokens) and self.tokens[self.index].type == "OPERATOR" and self.tokens[
+				self.index].value in ("==", "<=", ">=", "!=", "<", ">"):
+				operator = self.tokens[self.index].value
+				self.index += 1
+				right = self.parse_additive()
+				left = LeftOperation(left, operator, right)
+
+		return left
+
+	def parse_boolean_expression(self, left):
 		while self.index < len(self.tokens) and self.tokens[self.index].type == "OPERATOR" and self.tokens[
-			self.index].value in ("==", "<=", ">=", "!=", "<", ">"):
+			self.index].value in ("&&", "||"):
 			operator = self.tokens[self.index].value
 			self.index += 1
 			right = self.parse_additive()
 			left = LeftOperation(left, operator, right)
 
 		return left
-
 	def parse_additive(self):
 		left = self.parse_multiplicative()
 

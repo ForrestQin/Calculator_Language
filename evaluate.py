@@ -41,7 +41,12 @@ class Evaluator:
 		elif isinstance(node, UnaryOperation):
 			operand = self.evaluate(node.operand)
 
-			if node.operator == '-':
+			# Add support for boolean negation
+			if node.operator == "!":
+				return 1 if not operand else 0
+			# End of added support
+
+			elif node.operator == '-':
 				return -operand
 			elif isinstance(operand, ErrorStatement):
 				return ErrorStatement('divide by zero')
@@ -111,7 +116,10 @@ class Evaluator:
 			elif node.operator == '>=':
 
 				return 1 if left >= right else 0
-
+			elif node.operator == '&&':
+				return 1 if left and right else 0
+			elif node.operator == '||':
+				return 1 if left or right else 0
 			# Handle error cases
 
 			elif isinstance(left, ErrorStatement) or isinstance(right, ErrorStatement):

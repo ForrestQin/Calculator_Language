@@ -56,24 +56,67 @@ class Evaluator:
 			elif isinstance(left, ErrorStatement) or isinstance(right, ErrorStatement):
 				return ErrorStatement('divide by zero')
 
+
 		elif isinstance(node, LeftOperation):
+
 			left = self.evaluate(node.left)
+
 			right = self.evaluate(node.right)
 
 			if node.operator == '+':
+
 				return left + right
+
 			elif node.operator == '-':
+
 				return left - right
+
 			elif node.operator == '*':
+
 				return left * right
+
 			elif node.operator == '/':
+
 				if right == 0:
 					return ErrorStatement('divide by zero')
+
 				return left / right
+
 			elif node.operator == '%':
+
 				return left % right
+
+			# Add the relational operations here
+
+			elif node.operator == '==':
+
+				return 1 if left == right else 0
+
+			elif node.operator == '!=':
+
+				return 1 if left != right else 0
+
+			elif node.operator == '<':
+
+				return 1 if left < right else 0
+
+			elif node.operator == '<=':
+
+				return 1 if left <= right else 0
+
+			elif node.operator == '>':
+
+				return 1 if left > right else 0
+
+			elif node.operator == '>=':
+
+				return 1 if left >= right else 0
+
+			# Handle error cases
+
 			elif isinstance(left, ErrorStatement) or isinstance(right, ErrorStatement):
-				return ErrorStatement('divide by zero')
+
+				return ErrorStatement('error in expression')
 		# Add more operators as needed
 
 		elif isinstance(node, FunctionCall):

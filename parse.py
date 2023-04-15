@@ -8,7 +8,19 @@ class ExpressionParser:
 		self.index = 0
 
 	def parse(self):
-		return self.parse_additive()
+		return self.parse_expression()
+
+	def parse_expression(self):
+		left = self.parse_additive()
+
+		while self.index < len(self.tokens) and self.tokens[self.index].type == "OPERATOR" and self.tokens[
+			self.index].value in ("==", "<=", ">=", "!=", "<", ">"):
+			operator = self.tokens[self.index].value
+			self.index += 1
+			right = self.parse_additive()
+			left = LeftOperation(left, operator, right)
+
+		return left
 
 	def parse_additive(self):
 		left = self.parse_multiplicative()

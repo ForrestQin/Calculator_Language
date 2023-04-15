@@ -1,26 +1,6 @@
 from abst import *
 from tokenizer import *
 
-PRECEDENCE = {
-    # Add the precedence levels for the relational operators
-    "==": 4, "!=": 4, "<": 4, "<=": 4, ">": 4, ">=": 4,
-    # Add the precedence levels for the boolean operators
-    "&&": 3,
-    "||": 2,
-    "+": 1, "-": 1,
-    "*": 0, "/": 0, "%": 0, "^": 0,
-}
-
-ASSOCIATIVITY = {
-    # Add the associativity values for the relational operators
-    "==": "left", "!=": "left", "<": "left", "<=": "left", ">": "left", ">=": "left",
-    # Add the associativity values for the boolean operators
-    "&&": "left",
-    "||": "left",
-    "+": "left", "-": "left",
-    "*": "left", "/": "left", "%": "left", "^": "right",
-}
-
 
 class ExpressionParser:
 	def __init__(self, tokens):
@@ -55,17 +35,18 @@ class ExpressionParser:
 			left = LeftOperation(left, operator, right)
 
 		return left
+
 	def parse_additive(self):
 		left = self.parse_multiplicative()
 
-		while self.tokens[self.index].type == "OPERATOR" and self.tokens[self.index].value in ("+", "-"):
+		while self.index < len(self.tokens) and self.tokens[self.index].type == "OPERATOR" and self.tokens[
+			self.index].value in ("+", "-"):
 			operator = self.tokens[self.index].value
 			self.index += 1
 			right = self.parse_multiplicative()
 			left = LeftOperation(left, operator, right)
 
 		return left
-
 
 	def parse_multiplicative(self):
 		left = self.parse_exponentiation()
@@ -130,7 +111,8 @@ class ExpressionParser:
 	def parse_exponentiation(self):
 		left = self.parse_unary()
 
-		while self.tokens[self.index].type == "OPERATOR" and self.tokens[self.index].value == "^":
+		while self.index < len(self.tokens) and self.tokens[self.index].type == "OPERATOR" and self.tokens[
+			self.index].value == "^":
 			operator = self.tokens[self.index].value
 			self.index += 1
 			right = self.parse_unary()
@@ -181,7 +163,8 @@ class StatementParser:
 					if self.tokens[self.index - expr_parser.index].type == "IDENTIFIER":
 						var_name = self.tokens[self.index - expr_parser.index].value
 						self.index += 1
-						tokens = [Token('IDENTIFIER', var_name), Token('OPERATOR', operator[0])] + self.tokens[self.index:]
+						tokens = [Token('IDENTIFIER', var_name), Token('OPERATOR', operator[0])] + self.tokens[
+																								   self.index:]
 						expr_parser = ExpressionParser(tokens)
 						expr = expr_parser.parse()
 						self.index += expr_parser.index
@@ -225,9 +208,9 @@ class StatementParser:
 			return PrintStatement(expressions)
 		else:
 			raise ParseError()
+
 	def has_next(self):
 		return self.index < len(self.tokens)
-
 
 
 class ParseError(Exception):

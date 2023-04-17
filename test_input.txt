@@ -1,0 +1,65 @@
+# baseline
+x  = 3
+y  = 5
+z  = 2 + x * y
+z2 = (2 + x) * y
+print x, y, z, z2
+
+pi = 3.14159
+r = 2
+area = pi * r^2
+print area
+
+x = 1
+
+print x
+
+print 5 - 1 - 1 - 1
+print 2 ^ 2 ^ 2
+print 1
+print 2
+
+1 / 
+1 / 0
+print 0 / 1, 1 /
+print 0 / 1, 1 / 0
+
+x = 1
+print ++x
+print x++
+print x
+print x++ + --x
+print x
+
+# extentions
+# op-equals
+x = 1
+y = 2
+z = 3
+a = 4
+b = 5
+c = 6
+x += 1
+y -= 1
+z *= 2
+a /= 2
+b %= 3
+c ^= 2
+print x, y, z, a, b, c
+
+# relational operations
+print 1+1 == 2, 1 <= 1, 0 >= 1, -10 != -10, 5>3, -1 < 0
+
+# boolean operations
+print 1 && 2, 2 && 1, -5 && 1, 0 && -100
+print 1+1!=2 || 0>1, !2
+
+# comments
+x = 1
+/* 
+x = 2
+y = 3
+*/
+y = 4
+# print 0
+print x, y

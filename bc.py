@@ -1,12 +1,10 @@
-import sys
-
 from abst import PrintStatement
 from tokenizer import tokenize
-from parse import StatementParser, ErrorStatement, ParseError
+from parse import StatementParser, DivideByZeroError, ParseError
 from evaluate import Evaluator
 
 
-def main():
+def bc():
 	evaluator = Evaluator()
 
 	all_tokens = []
@@ -25,7 +23,7 @@ def main():
 					if isinstance(statement, PrintStatement):
 						print_statements.append(result)
 						print(result)
-					elif isinstance(result, ErrorStatement):
+					elif isinstance(result, DivideByZeroError):
 						print('divide by zero')
 			except ParseError:
 				print('parse error')
@@ -35,4 +33,4 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+	bc()

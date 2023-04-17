@@ -1,5 +1,5 @@
 from abst import *
-from parse import DivideByZeroError, ParseError, ErrorStatement
+from parse import DivideByZeroError, ParseError
 import math
 
 
@@ -9,8 +9,8 @@ class Evaluator:
 		self.functions = {}
 
 	def evaluate(self, node):
-		if isinstance(node, ErrorStatement):
-			return node.error
+		if isinstance(node, DivideByZeroError):
+			return DivideByZeroError('divide by zero')
 		elif isinstance(node, Number):
 			return node.value
 		elif isinstance(node, Variable):
@@ -37,20 +37,21 @@ class Evaluator:
 				return 1 if not operand else 0
 			elif node.operator == '-':
 				return -operand
-			elif isinstance(operand, ErrorStatement):
-				return ErrorStatement('divide by zero')
+			elif isinstance(operand, DivideByZeroError):
+				return DivideByZeroError('divide by zero')
 		elif isinstance(node, RightOperation):
 			left = self.evaluate(node.left)
 			right = self.evaluate(node.right)
-
-			if node.operator == '^':
+			if isinstance(left, DivideByZeroError) or isinstance(right, DivideByZeroError):
+				return DivideByZeroError('divide by zero')
+			elif node.operator == '^':
 				return math.pow(left, right)
-			elif isinstance(left, ErrorStatement) or isinstance(right, ErrorStatement):
-				return ErrorStatement('divide by zero')
 		elif isinstance(node, LeftOperation):
 			left = self.evaluate(node.left)
 			right = self.evaluate(node.right)
-			if node.operator == '+':
+			if isinstance(left, DivideByZeroError) or isinstance(right, DivideByZeroError):
+				return DivideByZeroError('divide by zero')
+			elif node.operator == '+':
 				return left + right
 			elif node.operator == '-':
 				return left - right
@@ -58,7 +59,7 @@ class Evaluator:
 				return left * right
 			elif node.operator == '/':
 				if right == 0:
-					return ErrorStatement('divide by zero')
+					return DivideByZeroError('divide by zero')
 				return left / right
 			elif node.operator == '%':
 				return left % right
@@ -78,8 +79,6 @@ class Evaluator:
 				return 1 if left and right else 0
 			elif node.operator == '||':
 				return 1 if left or right else 0
-			elif isinstance(left, ErrorStatement) or isinstance(right, ErrorStatement):
-				return ErrorStatement('error in expression')
 		elif isinstance(node, FunctionCall):
 			function = self.functions.get(node.name)
 			if function is None:
@@ -100,8 +99,8 @@ class Evaluator:
 		elif isinstance(node, Statement):
 			if isinstance(node, Assignment):
 				value = self.evaluate(node.expression)
-				if isinstance(value, ErrorStatement):
-					return ErrorStatement('divide by zero')
+				if isinstance(value, DivideByZeroError):
+					return DivideByZeroError('divide by zero')
 				self.variables[node.variable] = value
 				return value
 			elif isinstance(node, IfStatement):
@@ -125,7 +124,7 @@ class Evaluator:
 				results = []
 				for expr in node.expressions:
 					expr = self.evaluate(expr)
-					if isinstance(expr, ErrorStatement):
+					if isinstance(expr, DivideByZeroError):
 						expr = 'divide by zero'
 					results.append(expr)
 				return " ".join(str(result) for result in results)
